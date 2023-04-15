@@ -13,6 +13,12 @@ def generate_data() -> List[int]:
 
 def process1(data: List[int]) -> List[int]:
     """TODO: Document this function. What does it do? What are the inputs and outputs?"""
+    """
+    Input: list of integers
+    Output: list of the next largest prime number from the previou integer
+    This function finds the next largest prime number by passing each element of the list
+    into foo(), which finds the next largest prime number and substitutes it in the list
+    """
     def foo(x):
         """Find the next largest prime number."""
         while True:
@@ -35,7 +41,7 @@ def final_process(data1: List[int], data2: List[int]) -> List[int]:
     """TODO: Document this function. What does it do? What are the inputs and outputs?"""
     return np.mean([x - y for x, y in zip(data1, data2)])
 
-offload_url = 'http://192.168.4.74:5000' # TODO: Change this to the IP address of your server
+offload_url = 'http://127.0.0.1:5000' # TODO: Change this to the IP address of your server
 
 def run(offload: Optional[str] = None) -> float:
     """Run the program, offloading the specified function(s) to the server.
@@ -55,6 +61,8 @@ def run(offload: Optional[str] = None) -> float:
         def offload_process1(data):
             nonlocal data1
             # TODO: Send a POST request to the server with the input data
+            response = requests.post(f"{offload_url}/process1", json = data)
+            
             data1 = response.json()
         thread = threading.Thread(target=offload_process1, args=(data,))
         thread.start()
@@ -67,9 +75,41 @@ def run(offload: Optional[str] = None) -> float:
         #   Make sure to cite any sources you use to answer this question.
     elif offload == 'process2':
         # TODO: Implement this case
+        
+        data1 = None
+        def offload_process2(data):
+            nonlocal data1
+            # TODO: Send a POST request to the server with the input data
+            response = requests.post(f"{offload_url}/process1", json = data)
+            data2 = response.json()
+        thread = threading.Thread(target=offload_process1, args=(data,))
+        thread.start()
+        data1 = process1(data)
+        thread.join()
+        
         pass
     elif offload == 'both':
         # TODO: Implement this case
+        
+        data1 = None
+        def offload_process1(data):
+            nonlocal data1
+            # TODO: Send a POST request to the server with the input data
+            response = requests.post(f"{offload_url}/process1", json = data)
+            data1 = response.json()
+            
+            data1 = response.json()
+        def offload_process2(data):
+            nonlocal data1
+            # TODO: Send a POST request to the server with the input data
+            response = requests.post(f"{offload_url}/process1", json = data)
+            data2 = response.json()
+            
+        thread = threading.Thread(target=offload_process1, args=(data,))
+        thread.start()
+        data2 = process2(data)
+        thread.join()
+        
         pass
 
     ans = final_process(data1, data2)
@@ -79,6 +119,21 @@ def main():
     # TODO: Run the program 5 times for each offloading mode, and record the total execution time
     #   Compute the mean and standard deviation of the execution times
     #   Hint: store the results in a pandas DataFrame, use previous labs as a reference
+    rows = []
+    samples = 5
+    modes = [None, 'process1', 'process2', 'both']
+    
+    for mode in modes:
+        times = []
+        for i in range(samples):
+            start = time.time()
+            run(mode)
+            end = time.time()
+            times.append(end - start)
+            print(f"Offloading {mode} - sample {i+1}: {times[-1]:.2f}")
+        rows.append([str(mode), np.mean(times), np.std(times)])
+    df3=pd.DataFrame(rows, columns=['times', 'mean', 'std'])
+    
 
 
     # TODO: Plot makespans (total execution time) as a bar chart with error bars
@@ -93,6 +148,20 @@ def main():
     # Question 6: The processing functions in the example aren't very likely to be used in a real-world application. 
     #   What kind of processing functions would be more likely to be used in a real-world application?
     #   When would you want to offload these functions to a server?
+    
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+
+    ax.bar(modes,times)
+
+    
+    
+    
+    
+    plt.xlabel("modes")
+    plt.ylabel("times")
+    plt.title("Lab 10")
+    plt.show()
     
     
 if __name__ == '__main__':
