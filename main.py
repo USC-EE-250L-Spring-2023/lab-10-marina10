@@ -16,30 +16,36 @@ def process1(data: List[int]) -> List[int]:
     """
     Input: list of integers
     Output: list of the next largest prime number from the previou integer
-    This function finds the next largest prime number by passing each element of the list
-    into foo(), which finds the next largest prime number and substitutes it in the list
     """
     def foo(x):
         """Find the next largest prime number."""
         while True:
             x += 1
-            if all(x % i for i in range(2, x)):
+            if all(x % i for i in range(2, x)): #checks if any number x is divisible by any number between 2 and x, if not, that number is a prime number and it returns it, else it restarts the function but with x+1 (previous line) until it finds a prime number
                 return x
     return [foo(x) for x in data]
 
 def process2(data: List[int]) -> List[int]:
     """TODO: Document this function. What does it do? What are the inputs and outputs?"""
+    """
+    Input: list of integers
+    Output: list of the next largest prime number from the previou integer
+    """
     def foo(x):
         """Find the next largest prime number."""
         while True:
             x += 1
-            if int(np.sqrt(x)) ** 2 == x:
+            if int(np.sqrt(x)) ** 2 == x: #if the square route of a number x is equal to x when squared, then it returns x to the list, else it repeats the process with x+1 (previous line)
                 return x
     return [foo(x) for x in data]
 
 def final_process(data1: List[int], data2: List[int]) -> List[int]:
     """TODO: Document this function. What does it do? What are the inputs and outputs?"""
-    return np.mean([x - y for x, y in zip(data1, data2)])
+    """
+    Input: two lists of integers
+    Output: mean of the difference between elements in the two input lists
+    """
+    return np.mean([x - y for x, y in zip(data1, data2)]) 
 
 offload_url = 'http://127.0.0.1:5000' # TODO: Change this to the IP address of your server
 
@@ -161,6 +167,7 @@ def main():
     plt.xlabel("modes")
     plt.ylabel("times")
     plt.title("Lab 10")
+    plt.savefig('makespan.png')
     plt.show()
     
     
